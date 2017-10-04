@@ -1,0 +1,11 @@
+{
+  "author": "snlab",
+  "username": "snlab",
+  "name": "simple_routing",
+  "description": "simple intra-domain routing app",
+  "version": "latest",
+  "napp_dependencies": [],
+  "license": "",
+  "tags": [],
+  "url": ""
+}

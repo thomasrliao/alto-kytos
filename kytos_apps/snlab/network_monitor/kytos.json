@@ -1,0 +1,11 @@
+{
+  "author": "snlab",
+  "username": "snlab",
+  "name": "network_monitor",
+  "description": "monitor stats of topology, flows, and etc.",
+  "version": "latest",
+  "napp_dependencies": [],
+  "license": "",
+  "tags": [],
+  "url": ""
+}
