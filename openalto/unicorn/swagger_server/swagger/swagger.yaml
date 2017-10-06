@@ -1,0 +1,154 @@
+---
+swagger: "2.0"
+info:
+  version: "0.1.0"
+  title: "Example Unicorn Server (An ALTO Extension)"
+  contact:
+    name: "SNLab.Org"
+    url: "https://snlab.github.io/"
+    email: "snlab.org@gmail.com"
+  license:
+    name: "MIT"
+    url: "https://opensource.org/licenses/MIT"
+schemes:
+- "http"
+- "https"
+consumes:
+- "application/json"
+produces:
+- "application/json"
+paths:
+  /ext/query/path:
+    post:
+      description: "Make a recursive path query"
+      operationId: "ext_query_path_post"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "queries"
+        required: true
+        schema:
+          $ref: "#/definitions/PathQueryRequest"
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/PathQueryResponse"
+        default:
+          description: "Error"
+          schema:
+            $ref: "#/definitions/Error"
+      x-swagger-router-controller: "swagger_server.controllers.default_controller"
+  /ext/query/resource:
+    post:
+      description: "Returns resource state abstraction in simple mode"
+      operationId: "ext_query_resource_post"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "flows"
+        required: true
+        schema:
+          $ref: "#/definitions/ResourceQueryRequest"
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/ResourceQueryResponse"
+        default:
+          description: "Error"
+          schema:
+            $ref: "#/definitions/Error"
+      x-swagger-router-controller: "swagger_server.controllers.default_controller"
+definitions:
+  PathQueryRequest:
+    required:
+    - "queries"
+    properties:
+      queries:
+        type: "array"
+        items:
+          $ref: "#/definitions/QueryDesc"
+  QueryDesc:
+    required:
+    - "flow"
+    - "ingress-point"
+    properties:
+      flow:
+        $ref: "#/definitions/FlowSpec"
+      ingress-point:
+        $ref: "#/definitions/Ipv4Addr"
+  FlowSpec:
+    required:
+    - "dstIP"
+    - "srcIP"
+    properties:
+      srcIP:
+        $ref: "#/definitions/Ipv4Addr"
+      dstIP:
+        $ref: "#/definitions/Ipv4Addr"
+  Ipv4Addr:
+    type: "string"
+  PathQueryResponse:
+    required:
+    - "ingress-point-paths"
+    properties:
+      ingress-point-paths:
+        type: "array"
+        items:
+          $ref: "#/definitions/Ipv4Addr"
+  Error:
+    properties:
+      meta:
+        $ref: "#/definitions/Error_meta"
+  ResourceQueryRequest:
+    required:
+    - "queries"
+    properties:
+      queries:
+        type: "array"
+        items:
+          $ref: "#/definitions/QueryDesc"
+  ResourceQueryResponse:
+    required:
+    - "ane-paths"
+    - "ane-property"
+    properties:
+      ane-paths:
+        $ref: "#/definitions/VectorArray"
+      ane-property:
+        type: "array"
+        items:
+          $ref: "#/definitions/ResourceProperty"
+  VectorArray:
+    type: "array"
+    items:
+      type: "array"
+      items:
+        type: "integer"
+  ResourceProperty:
+    required:
+    - "availbw"
+    properties:
+      availbw:
+        type: "integer"
+  Error_meta:
+    required:
+    - "code"
+    properties:
+      code:
+        type: "string"
+        enum:
+        - "E_SYNTAX"
+        - "E_MISSING_FIELD"
+        - "E_INVALID_FIELD_TYPE"
+        - "E_INVALID_FIELD_VALUE"
+      message:
+        type: "string"
+        description: "Provides the details of the error"
