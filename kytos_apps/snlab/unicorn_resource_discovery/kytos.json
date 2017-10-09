@@ -1,0 +1,11 @@
+{
+  "author": "snlab",
+  "username": "snlab",
+  "name": "unicorn_resource_discovery",
+  "description": "unicorn cross-domain resource discovery",
+  "version": "latest",
+  "napp_dependencies": [],
+  "license": "",
+  "tags": [],
+  "url": ""
+}

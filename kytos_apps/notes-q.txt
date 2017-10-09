@@ -1,0 +1,40 @@
+components needed:
+
+1. simple routing policy
+
+
+
+
+
+2. path query
+
+a restful api to accept query of a set of flows
+
+check routing policy database to get the remote-ingress-point information for each flow
+
+return the information above through the api
+
+(Anything else?)
+
+
+
+3. resource query
+
+a restful api to accept resource query of a set of flows
+
+check routing policy database to get the link of each path, assemble matrix A
+check of_stats database to get the available bandwidth of each link, assemble vector C
+
+run MECS to get A' and C'
+
+return the information above through the api
+
+
+
+
+
+
+
+
+
+

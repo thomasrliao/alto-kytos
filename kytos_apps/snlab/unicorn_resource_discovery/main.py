@@ -1,22 +1,18 @@
-"""Main module of snlab/simple_routing Kytos Network Application.
+"""Main module of snlab/unicorn_resource_discovery Kytos Network Application.
 
-simple intra-domain routing app
+unicorn cross-domain resource discovery
 """
 
-import json
+from kytos.core import KytosNApp, log
 
-from kytos.core import KytosNApp, log, rest
-from kytos.core.helpers import listen_to
-from pyof.foundation.basic_types import HWAddress
-from pyof.foundation.network_types import Ethernet
-from pyof.v0x01.controller2switch.stats_request import StatsTypes
+from napps.snlab.unicorn_resource_discovery import settings
 
-from napps.snlab import network_monitor.Main
+import connexion
+from napps.snlab.unicorn_resource_discovery.encoder import JSONEncoder
 
-from napps.snlab.simple_routing import settings
 
 class Main(KytosNApp):
-    """Main class of snlab/simple_routing NApp.
+    """Main class of snlab/unicorn_resource_discovery NApp.
 
     This class is the entry point for this napp.
     """
@@ -30,7 +26,7 @@ class Main(KytosNApp):
         So, if you have any setup routine, insert it here.
         """
         #pass
-        log.info("simple routing was setup")
+        log.info("unicorn resource discovery napp is loaded!")
 
     def execute(self):
         """This method is executed right after the setup method execution.
@@ -41,12 +37,7 @@ class Main(KytosNApp):
             self.execute_as_loop(30)  # 30-second interval.
         """
         #pass
-        x = network_monitor.Main()
-
-
-
-
-
+        self.initREST()
 
     def shutdown(self):
         """This method is executed when your napp is unloaded.
@@ -54,3 +45,16 @@ class Main(KytosNApp):
         If you have some cleanup procedure, insert it here.
         """
         pass
+
+    #@staticmethod
+    def initREST(self):
+        log.info("we are starting our own restful api")
+        app = connexion.App(__name__, specification_dir='./swagger/')
+        app.app.json_encoder = JSONEncoder
+        app.add_api('swagger.yaml', arguments={'title': 'Cross-domain path and resource discovery'})
+        app.run(port=8080)
+
+
+
+
+

@@ -1,0 +1,192 @@
+swagger: '2.0'
+info:
+  title: Unicorn API
+  description: Cross-domain path and resource discovery
+  version: "0.1.1"
+# the domain of the service
+host: snlab.org:8080
+# array of all schemes that your API supports
+schemes:
+  - http
+  - https
+# will be prefixed to all paths
+basePath: /v1/unicorn
+produces:
+  - application/json
+paths:
+  /query/path:
+    post:
+      description: "query the ingress point of the next domain"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "query-set"
+        description: "a set of path queries"
+        required: true
+        schema:
+          $ref: "#/definitions/QueryRequests"
+      responses:
+        200:
+          description: Success
+          schema:
+            $ref: "#/definitions/PathQueryResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+            
+  /query/resource:
+    post:
+      description: "query the resource availability of the current domain for a given set of flows"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "query-set"
+        description: "a set of resource queries"
+        required: true
+        schema:
+          $ref: "#/definitions/QueryRequests"
+      responses:
+        200:
+          description: Success
+          schema:
+            $ref: "#/definitions/ResourceQueryResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+            
+definitions:
+  Ipv4Addr:
+    type: string
+    pattern: ^((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))|$
+  PortNumber:
+    type: integer
+    format: int32
+    minimum: 0
+    maximum: 65535
+  FlowSpec:
+    type: object
+    required: [dstIP]
+    properties:
+      dstIP:
+        $ref: "#/definitions/Ipv4Addr"
+      srcIP:
+        $ref: "#/definitions/Ipv4Addr"
+      srcPort:
+        $ref: "#/definitions/PortNumber"
+      dstPort:
+        $ref: "#/definitions/PortNumber"
+      protocol:
+        type: string
+  QueryDesc:
+    type: object
+    required: [flow, ingress-point]
+    properties:
+      flow:
+        $ref: "#/definitions/FlowSpec"
+      ingress-point:
+        $ref: "#/definitions/Ipv4Addr"
+  ANE:
+    type: object
+    required: [availbw]
+    properties:
+      availbw:
+        type: integer
+        format: int32
+    example:
+      availbw: 1000000
+  ANEFlowCoefficient:
+    type: object
+    required: [flowid, coefficient]
+    properties:
+      flowid:
+        type: integer
+        format: int32
+      coefficient:
+        type: number
+        format: double
+    example:
+      flowid: 1
+      coefficient: 0.5
+  ANEFlowVector:
+    type: array
+    items: 
+      $ref: "#/definitions/ANEFlowCoefficient"
+    example: 
+    - flowid: 1
+      coefficient: 0.5
+    - flowid: 2
+      coefficient: 1
+  QueryRequests:
+    type: array
+    description: each item provides the specifications of a flow and from where it will enter the current domain.
+    items:
+      $ref: "#/definitions/QueryDesc"
+    example:
+    - flow:
+        dstIP: "192.168.1.100"
+        srcIP: "192.168.2.100"
+        dstPort: 54321
+        protocol: "tcp"
+      ingress-point: ""
+    - flow:
+        dstIP: "192.168.2.101"
+        srcIP: "192.168.3.101"
+        dstPort: 8080
+        protocol: "tcp"
+      ingress-point: "172.17.0.2"
+  PathQueryResponse:
+    type: array
+    description: each item represents the ingress point from where the corresponding flow should enter the next domain.
+    items: 
+      $ref: "#/definitions/Ipv4Addr"
+    example:
+    - "172.18.0.3"
+    - "172.18.0.4"
+  ResourceQueryResponse:
+    type: object
+    required: [ane-matrix, anes]
+    properties:
+      ane-matrix:
+        type: array
+        items: 
+          $ref: "#/definitions/ANEFlowVector"
+      anes:
+        type: array
+        items: 
+          $ref: "#/definitions/ANE"
+    example:
+      ane-matrix:
+      - - flowid: 1
+          coefficient: 0.5
+        - flowid: 2
+          coefficient: 1
+      - - flowid: 1
+          coefficient: 0.5
+      anes:
+      - availbw: 1000000
+      - availbw: 700000
+  ErrorResponse:
+    properties:
+      meta:
+        properties:
+          code:
+            type: string
+            enum:
+            - E_SYNTAX
+            - E_MISSING_FIELD
+            - E_INVALID_FIELD_TYPE
+            - E_INVALID_FIELD_VALUE
+          message:
+            description: Provides the details of the error
+            type: string
+        required:
+        - code
+        type: object
