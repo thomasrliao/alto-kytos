@@ -8,6 +8,7 @@ from typing import List, Dict
 from six import iteritems
 from ..util import deserialize_date, deserialize_datetime
 
+from kytos.core import log
 
 def query_path_post(query_set):
     """
@@ -20,7 +21,9 @@ def query_path_post(query_set):
     """
     if connexion.request.is_json:
         query_set = QueryRequests.from_dict(connexion.request.get_json())
-    return 'do some magic!'
+    log.info(query_set)
+    return connexion.request.get_json()
+    #return 'do some magic!'
 
 
 def query_resource_post(query_set):
