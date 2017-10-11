@@ -1,0 +1,6 @@
+#!/home/patrick/unicorn/alto-kytos/env/bin/python
+# EASY-INSTALL-DEV-SCRIPT: 'kytos==2017.2b1','kytosd'
+__requires__ = 'kytos==2017.2b1'
+__import__('pkg_resources').require('kytos==2017.2b1')
+__file__ = '/home/patrick/unicorn/alto-kytos/kytos/bin/kytosd'
+exec(compile(open(__file__).read(), __file__, 'exec'))
